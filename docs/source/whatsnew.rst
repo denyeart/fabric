@@ -1,21 +1,74 @@
 What's new in Hyperledger Fabric v2.x
 =====================================
 
+What's New in Hyperledger Fabric v2.3
+-------------------------------------
+
+Hyperledger Fabric v2.3 introduces two new features for improved orderer and peer operations.
+
+Orderer channel management without a system channel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To simplify the channel creation process and enhance the privacy and scalability of channels,
+it is now possible to create application channels without first creating a “system channel” managed by the ordering service.
+This process allows ordering nodes to join (or leave) any number of channels as needed, similar to how peers can participate in multiple channels.
+
+Benefits of the new process:
+
+* **Increased privacy** Because all ordering nodes used to be joined to the system channel,
+  every ordering node in a network knew about the existence of every channel on that ordering service.
+  Now, an ordering node only knows about the channels it is joined to.
+* **Scalability** When there is a large number of ordering nodes and channels defined on the system channel,
+  it can take a long time for ordering nodes to reach consensus on the membership of all the channels.
+  Now, an ordering service can scale horizontally in a decentralized fashion by independently joining ordering nodes to specific channels.
+* **Operational benefits**
+   * Simple process to join an ordering node to a channel
+   * Ability to list the channels that the ordering node is a consenter on.
+   * Simple process to remove a channel from an ordering node, which automatically cleans up the blocks associated with that channel.
+   * Peer organizations do not need to coordinate with an admin of the system channel to create or update its MSP.
+
+For more information, see the :doc:`create_channel/create_channel_participation` topic.
+
+Ledger Snapshot
+^^^^^^^^^^^^^^^
+
+It is now possible to take a snapshot of a peer's channel information, including its state database,
+and join new peers (in the same organization or different organizations) to the channel based on the snapshot.
+
+Using ledger snapshots has the following advantages:
+
+* **Peers don't need to process all blocks since genesis block** Peers can join a channel without processing all
+  previous blocks since the genesis block, greatly reducing the time it takes to join a peer to an existing channel.
+* **Peers can join channels using latest channel configuration** Because snapshots include the latest channel configuration,
+  peers can now join a channel using the latest channel configuration.
+  This is especially important if critical channel configuration such as orderer endpoints or MSP CA certificates have been updated since the genesis block.
+* **Reduced storage costs** Peers that join by snapshot do not incur the storage cost of maintaining all blocks since the genesis block.
+* **State checkpoints** Peer administrators can snapshot current channel state and compare with other peers,
+  in the same organization or different organizations, to verify the consistency and integrity of the ledger on each peer.
+  Agreed upon snapshots can be used as a checkpoint and basis for newly joining peers.
+
+For more information, see the :doc:`peer_ledger_snapshot` topic.
+
+.. note::
+
+   While Fabric v2.3.0 introduces new features, Fabric v2.2.0 remains the current long-term support release until the next LTS release is announced.
+
+What's New in Hyperledger Fabric v2.0, v2.1, v2.2
+-------------------------------------------------
+
 The first Hyperledger Fabric major release since v1.0, Fabric v2.0
 delivers important new features and changes for users and operators alike,
 including support for new application and privacy patterns, enhanced
 governance around smart contracts, and new options for operating nodes.
 
-Each v2.x minor release builds on the v2.0 release with minor features,
-improvements, and bug fixes.
-
-v2.2 is the first long-term support (LTS) release of Fabric v2.x.
+v2.1 and v2.2 build on the v2.0 release with minor features,
+improvements, and bug fixes, with v2.2 being the first long-term support (LTS) release of Fabric v2.x.
 Fixes will be provided on the v2.2.x release stream until after the next LTS release is announced.
 
 Let's take a look at some of the highlights of the Fabric v2.0 release...
 
 Decentralized governance for smart contracts
---------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Fabric v2.0 introduces decentralized governance for smart contracts, with a new
 process for installing a chaincode on your peers and starting it on a channel.
@@ -68,9 +121,6 @@ offers several improvements over the previous lifecycle:
   ledger.  This also allows organizations to individually roll out minor fixes
   on their own schedules without requiring the entire network to proceed in lock-step.
 
-Using the new chaincode lifecycle
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 For existing Fabric deployments, you can continue to use the prior chaincode
 lifecycle with Fabric v2.x. The new chaincode lifecycle will become effective
 only when the channel application capability is updated to v2.0.
@@ -78,7 +128,7 @@ See the :doc:`chaincode_lifecycle` concept topic for an overview of the new
 chaincode lifecycle.
 
 New chaincode application patterns for collaboration and consensus
-------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The same decentralized methods of coming to agreement that underpin the
 new chaincode lifecycle management can also be used in your own chaincode
@@ -99,7 +149,7 @@ they are committed to the ledger.
   see the asset transfer scenario in the :doc:`private-data/private-data` documentation.
 
 Private data enhancements
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Fabric v2.0 also enables new patterns for working with and sharing private data,
 without the requirement of creating private data collections for all
@@ -138,7 +188,7 @@ documentation). For details about private data collection configuration and
 implicit collections, see the :doc:`private-data-arch` (reference documentation).
 
 External chaincode launcher
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The external chaincode launcher feature empowers operators to build and launch
 chaincode with the technology of their choice. Use of external builders and launchers
@@ -166,7 +216,7 @@ as prior releases using the Docker API.
 See :doc:`cc_launcher` to learn more about the external chaincode launcher feature.
 
 State database cache for improved performance on CouchDB
---------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * When using external CouchDB state database, read delays during endorsement
   and validation phases have historically been a performance bottleneck.
@@ -176,7 +226,7 @@ State database cache for improved performance on CouchDB
   core.yaml property ``cacheSize``.
 
 Alpine-based docker images
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Starting with v2.0, Hyperledger Fabric Docker images will use Alpine Linux,
 a security-oriented, lightweight Linux distribution. This means that Docker
@@ -186,7 +236,7 @@ from the ground up with security in mind, and the minimalist nature of the Alpin
 distribution greatly reduces the risk of security vulnerabilities.
 
 Sample test network
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 The fabric-samples repository now includes a new Fabric test network. The test
 network is built to be a modular and user friendly sample Fabric network that
@@ -197,11 +247,12 @@ in addition to cryptogen.
 For more information about this network, check out :doc:`test_network`.
 
 Upgrading to Fabric v2.x
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 A major new release brings some additional upgrade considerations. Rest assured
 though, that rolling upgrades from v1.4.x to v2.0 are supported, so that network
-components can be upgraded one at a time with no downtime.
+components can be upgraded one at a time with no downtime. You can also upgrade
+directly from the v1.4.x LTS release to the v2.2 LTS release.
 
 The upgrade docs have been significantly expanded and reworked, and now have a
 standalone home in the documentation: :doc:`upgrade`. Here you'll find documentation on
@@ -221,6 +272,7 @@ announced in each of the v2.x releases.
 * `Fabric v2.1.1 release notes <https://github.com/hyperledger/fabric/releases/tag/v2.1.1>`_.
 * `Fabric v2.2.0 release notes <https://github.com/hyperledger/fabric/releases/tag/v2.2.0>`_.
 * `Fabric v2.2.1 release notes <https://github.com/hyperledger/fabric/releases/tag/v2.2.1>`_.
+* `Fabric v2.3.0 release notes <https://github.com/hyperledger/fabric/releases/tag/v2.3.0>`_.
 
 .. Licensed under Creative Commons Attribution 4.0 International License
    https://creativecommons.org/licenses/by/4.0/
