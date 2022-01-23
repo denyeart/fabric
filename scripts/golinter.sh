@@ -19,10 +19,10 @@ echo "Checking with gofmt"
 OUTPUT="$(gofmt -l -s "${source_dirs[@]}")"
 OUTPUT="$(filterExcludedAndGeneratedFiles "$OUTPUT")"
 if [ -n "$OUTPUT" ]; then
-    echo "The following files contain gofmt errors"
-    echo "$OUTPUT"
-    echo "The gofmt command 'gofmt -l -s -w' must be run for these files"
-    exit 1
+   echo "The following files contain gofmt errors"
+   echo "$OUTPUT"
+   echo "The gofmt command 'gofmt -l -s -w' must be run for these files"
+   exit 1
 fi
 
 echo "Checking with goimports"
