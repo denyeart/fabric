@@ -14,6 +14,10 @@ on:
         description: 'Fabric Two Digit Release'
         required: true
         type: string
+      commit_hash:
+        description: 'Commit hash'
+        required: true
+        type: string
 
 env:
   GO_VER: 1.18.7
@@ -79,7 +83,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   create-release:
     name: Create GitHub Release
-    needs: [ build-binaries, build-and-push-docker-images ]
+    needs: [ build-binaries ]
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -94,5 +98,6 @@ jobs:
         with:
           artifacts: "*.tar.gz/*.tar.gz"
           bodyFile: release_notes/v${{ inputs.release }}.md
+          commit: ${{ inputs.commit_hash }}
           tag: v${{ inputs.release }}
           token: ${{ secrets.GITHUB_TOKEN }}
