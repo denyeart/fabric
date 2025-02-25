@@ -12,7 +12,6 @@ on:
       - v3.*
 
 env:
-  GO_VER: 1.24.0
   UBUNTU_VER: 22.04
   FABRIC_VER: ${{ github.ref_name }}
 
@@ -47,7 +46,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VER }}
+          go-version-file: go.mod
       - name: Compile Binary and Create Tarball
         run: ./ci/scripts/create_binary_package.sh
         env:
@@ -97,7 +96,11 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-        
+
+      - name: Set GO_VER environment variable from go.mod
+        run: |
+          awk '/^go[ /t]/ { gsub(/^go[ \t]+|[ \t]+^/, ""); print "GO_VER="$0; exit }' < go.mod >> "${GITHUB_ENV}"
+
       - name: Login to the ${{ matrix.registry }} Container Registry
         uses: docker/login-action@v3
         with:
